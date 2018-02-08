@@ -1,0 +1,16 @@
+---
+# defaults file for docker-compose
+#
+compose_arch: x86_64
+compose_version: 1.19.0
+compose_install: true
+compose_os_type: Linux
+composer_bin_name: docker-compose
+compose_url_base: https://github.com/docker/compose/releases/download/
+compose_url: "{{ compose_url_base }}/{{ compose_version }}/{{ composer_bin_name }}-{{ compose_os_type }}-{{ compose_arch }}"
+compose_download_timeout: 10
+compose_download_mode: 'u=rwx,go=rx'
+compose_download_dir: /opt/docker-compose
+compose_download_force: false
+compose_download_validate_certs: true
+compose_download_use_proxy: true

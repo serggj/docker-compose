@@ -1,0 +1,15 @@
+---
+# tasks file for docker-compose
+- name: load compose version vars
+  with_first_found:
+    - 'compose-versions/{{ compose_version }}.yml'
+  include_vars: '{{ item }}'
+  failed_when: false
+  ignore_errors: true
+  when: compose_version and compose_install
+  tags: compose_install
+
+- name: setup version {{ compose_version }}
+  include_tasks: install-version.yml
+  when: compose_install and compose_version
+  tags: compose_install

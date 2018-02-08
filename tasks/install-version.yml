@@ -1,0 +1,51 @@
+---
+- name: assert vars
+  assert:
+    that:
+      - compose_version not in (None, '')
+      - compose_sha not in (None, '')
+      - compose_os_type not in (None, '')
+      - compose_url_base not in (None, '')
+      - compose_url not in (None, '')
+      - composer_bin_name not in (None, '')
+      - compose_download_timeout not in (None, '')
+      - compose_download_mode not in (None, '')
+      - compose_download_dir not in (None, '')
+      - compose_download_validate_certs not in (None, '')
+
+- name: compose  download dest dir
+  file:
+    path: "{{ compose_download_dir }}"
+    state: directory
+
+- name: download compose
+  get_url:
+    url: '{{ compose_url }}'
+    dest: '{{ compose_download_dir }}/{{ composer_bin_name }}-{{compose_version}}'
+    force: '{{ compose_download_force }}'
+    use_proxy: '{{ compose_download_use_proxy }}'
+    validate_certs: '{{ compose_download_validate_certs }}'
+    timeout: '{{ compose_download_timeout }}'
+    mode: '{{ compose_download_mode }}'
+
+
+- name: check for compose on remote box
+  stat:
+    path: '{{ compose_download_dir }}/{{ composer_bin_name }}-{{compose_version}}'
+    checksum_algorithm: sha256
+  register: remote_compose_file
+  ignore_errors: true
+
+- name: assert existing JDK matches checksum
+  assert:
+    that:
+      - remote_compose_file.stat.checksum == compose_sha
+    msg: 'Checksum failed: {{ remote_compose_file.stat.checksum }} != {{ compose_sha }}'
+  when: remote_compose_file.stat.exists
+
+
+- name: alternatives link created
+  alternatives:
+    name: "{{ composer_bin_name }}"
+    link: "/usr/local/bin/{{ composer_bin_name }}"
+    path: '{{ compose_download_dir }}/{{ composer_bin_name }}-{{compose_version}}'

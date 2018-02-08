@@ -1,0 +1,20 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - { role: docker-compose, compose_version: 1.18.0 }
+    - { role: docker-compose, compose_version: 1.19.0 }
+
+  post_tasks:
+    - name: compose version define
+      command: "docker-compose --version"
+      register: compose_version_get
+      changed_when: compose_version_get.rc
+
+    - name: compose_version
+      debug: var=compose_version_get
+
+    - name: verify compose facts
+      assert:
+        that:
+          - compose_version_get is defined
